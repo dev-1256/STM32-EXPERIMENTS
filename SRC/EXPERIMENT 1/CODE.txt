@@ -1,0 +1,2 @@
+HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
+HAL_Delay(1000);

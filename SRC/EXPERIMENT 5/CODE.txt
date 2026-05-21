@@ -1,0 +1,22 @@
+/* Includes */
+#include &quot;stm32l475e_iot01.h&quot;
+#include &quot;stm32l475e_iot01_psensor.h&quot;
+#include &quot;stdlib.h&quot;
+#include &lt;math.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdio.h&gt;
+/* USER CODE BEGIN PV */
+char str[40];
+float p_value = 0; // Measured pressure value
+char str_tmp[100] = &quot;&quot;; // Formatted message to display the pressure value
+uint8_t msg3[] = &quot;=====&gt; Pressure sensor lps22hb initialized \r\n &quot;;
+/* USER CODE END PV */
+/* USER CODE BEGIN 2 */
+HAL_UART_Transmit(&amp;huart1,msg3,sizeof(msg3),1000);
+if (BSP_PSENSOR_Init() != PSENSOR_OK)
+{
+// Optional: Send an error message if init fails
+char err_msg[] = &quot;Sensor Init Error\r\n&quot;;
+HAL_UART_Transmit(&amp;huart1, (uint8_t*)err_msg, strlen(err_msg), 1000);
+}
+/* USER CODE END 2 */

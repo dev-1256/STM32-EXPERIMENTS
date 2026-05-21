@@ -1,0 +1,33 @@
+/* USER CODE BEGIN Includes */
+#include &quot;stm32l475e_iot01.h&quot;
+#include &quot;stm32l475e_iot01_hsensor.h&quot;
+#include &quot;stm32l475e_iot01_tsensor.h&quot;
+#include &quot;stdlib.h&quot;
+#include &lt;math.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdio.h&gt;
+char str[50];
+float temp_value = 0;
+float hum_value = 0;// Measured temperature value
+char str_tmp[100] = &quot;&quot;; // Formatted message to display the temperature value
+uint8_t msg3[] = &quot;=====&gt; Temperature sensor HTS221 initialized \r\n &quot;;
+/* USER CODE BEGIN 2 */
+if (BSP_HSENSOR_Init() != HSENSOR_OK) { // Use HSENSOR for both!
+uint8_t error[] = &quot;SENSOR INIT FAILED!\r\n&quot;;
+HAL_UART_Transmit(&amp;huart1, error, sizeof(error)-1, 1000);
+} else {
+uint8_t ok[] = &quot;HTS221 OK - T+H Working\r\n&quot;;
+HAL_UART_Transmit(&amp;huart1, ok, sizeof(ok)-1, 1000);
+}
+HAL_UART_Transmit(&amp;huart1, msg3, sizeof(msg3), 1000);
+/* USER CODE BEGIN 2 */
+BSP_TSENSOR_Init();
+BSP_HSENSOR_Init();
+HAL_UART_Transmit(&amp;huart1,msg3,sizeof(msg3),1000);
+/* USER CODE END 2 */
+float hum_value = BSP_HSENSOR_ReadHumidity();
+float temp_value = BSP_TSENSOR_ReadTemp(); // ← SAME SENSOR!
+// Debug both values
+sprintf(str, &quot;Temperature:%.1fC Humidity:%.0f%%\r\n&quot;, temp_value, hum_value);
+HAL_UART_Transmit(&amp;huart1, (uint8_t*)str, strlen(str), 1000);
+HAL_Delay(1000);

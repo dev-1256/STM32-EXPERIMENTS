@@ -1,0 +1,42 @@
+/* Includes */
+#include &quot;stm32l475e_iot01.h&quot;
+#include &quot;stm32l475e_iot01_accelero.h&quot;
+#include &quot;stm32l475e_iot01_gyro.h&quot;
+#include &quot;stdlib.h&quot;
+#include &lt;math.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdio.h&gt;
+/* USER CODE BEGIN PV */
+char msg_motion[50] = &quot;LSM6DSL motion sensor initialized\r\n&quot;;
+char str_accel[100];
+char str_gyro[100];
+int16_t accel_data[3]; /* Accelerometer usually returns raw 16-bit integers */
+float gyro_data[3]; /* FIXED: Gyroscope BSP expects a float array */
+/* USER CODE END PV */
+/* USER CODE BEGIN 2 */
+if (BSP_ACCELERO_Init() != ACCELERO_OK || BSP_GYRO_Init() != GYRO_OK)
+{
+char errmsg[] = &quot;Motion sensor Init Error\r\n&quot;;
+HAL_UART_Transmit(&amp;huart1, (uint8_t*)errmsg, strlen(errmsg), 1000);
+while(1); // Stop here if init fails
+}
+else
+
+
+
+{
+HAL_UART_Transmit(&amp;huart1, (uint8_t*)msg_motion, strlen(msg_motion), 1000);
+}
+HAL_Delay(100);
+/* USER CODE END 2 */
+
+BSP_ACCELERO_AccGetXYZ(accel_data);
+sprintf(str_accel, &quot;Accelero: X=%.2f, Y=%.2f, Z=%.2f mg\r\n&quot;,
+(float)accel_data[0]/1000.0f, (float)accel_data[1]/1000.0f, (float)accel_data[2]/1000.0f);
+HAL_UART_Transmit(&amp;huart1, (uint8_t*)str_accel, strlen(str_accel), 1000);
+HAL_Delay(1000);
+BSP_GYRO_GetXYZ(gyro_data);
+sprintf(str_gyro, &quot;Gyro: X=%.2f, Y=%.2f, Z=%.2f mdps\r\n&quot;,
+(float)gyro_data[0], (float)gyro_data[1], (float)gyro_data[2]);
+HAL_UART_Transmit(&amp;huart1, (uint8_t*)str_gyro, strlen(str_gyro), 1000);
+HAL_Delay(1000);

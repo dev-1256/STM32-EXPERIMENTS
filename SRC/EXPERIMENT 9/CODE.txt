@@ -1,0 +1,53 @@
+/* Includes */
+#include &quot;stm32l475e_iot01.h&quot;
+#include &quot;stm32l475e_iot01_hsensor.h&quot;
+#include &quot;stm32l475e_iot01_tsensor.h&quot;
+#include &quot;stm32l475e_iot01_psensor.h&quot;
+#include &quot;stm32l475e_iot01_accelero.h&quot;
+#include &quot;stdlib.h&quot;
+#include &lt;math.h&gt;
+#include &lt;string.h&gt;
+
+
+
+#include &lt;stdio.h&gt;
+
+/* USER CODE BEGIN PV */
+char str[150]; // Increased size to accommodate more data
+float temp_value = 0;
+float hum_value = 0;
+float press_value = 0; // Added for Pressure
+int16_t xyz_acc[3] = {0}; // Added for Accelerometer (X, Y, Z)
+uint8_t msg_init[] = &quot;=====&gt; All Sensors Initialized \r\n&quot;;
+/* USER CODE END PV */
+
+/* USER CODE BEGIN 2 */
+// Initialize Temperature and Humidity (HTS221)
+if (BSP_HSENSOR_Init() != HSENSOR_OK) {
+HAL_UART_Transmit(&amp;huart1, (uint8_t*)&quot;HSENSOR Error\r\n&quot;, 15, 1000);
+}
+BSP_TSENSOR_Init();
+// Initialize Pressure Sensor (LPS22HB)
+if (BSP_PSENSOR_Init() != PSENSOR_OK) {
+HAL_UART_Transmit(&amp;huart1, (uint8_t*)&quot;PSENSOR Error\r\n&quot;, 15, 1000);
+}
+// Initialize Accelerometer (LSM6DSL)
+if (BSP_ACCELERO_Init() != ACCELERO_OK) {
+HAL_UART_Transmit(&amp;huart1, (uint8_t*)&quot;ACCELERO Error\r\n&quot;, 16, 1000);
+}
+HAL_UART_Transmit(&amp;huart1, msg_init, sizeof(msg_init), 1000);
+/* USER CODE END 2 */
+
+// 1. Read Humidity and Temperature
+hum_value = BSP_HSENSOR_ReadHumidity();
+temp_value = BSP_TSENSOR_ReadTemp();
+// 2. Read Pressure (returns value in hPa/mbar)
+press_value = BSP_PSENSOR_ReadPressure();
+// 3. Read Accelerometer (returns values in mg - milli-g)
+BSP_ACCELERO_AccGetXYZ(xyz_acc);
+// Format the output string
+// T: Temp, H: Humidity, P: Pressure, Acc: X, Y, Z
+snprintf(str, sizeof(str),&quot;T:%.1fC | H:%.1f%% | P:%.1f hPa | Acc: X:%d Y:%d Z:%d\r\n&quot;,
+temp_value, hum_value, press_value, xyz_acc[0], xyz_acc[1], xyz_acc[2]);
+HAL_UART_Transmit(&amp;huart1, (uint8_t*)str, strlen(str), 1000);
+HAL_Delay(1000);

@@ -1,0 +1,3 @@
+uint8_t Test[] = &quot;Chitkara University !!!\r\n&quot;;
+HAL_UART_Transmit(&amp;huart1,Test,sizeof(Test),10);
+HAL_Delay(1000);
